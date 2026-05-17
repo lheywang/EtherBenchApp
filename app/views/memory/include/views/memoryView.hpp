@@ -21,8 +21,11 @@
 #include "../../private/memoryHexView.hpp"
 
 // QT
+#include <QEvent>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QMenuBar>
+#include <QObject>
 #include <QSplitter>
 #include <QString>
 #include <QTreeView>
@@ -46,23 +49,53 @@ class MemoryView : public BaseView {
     void onDeactivated() override;
     void fillMenubar(QMenuBar *menuBar) override;
 
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
   private:
     /*
      * Private variables
      */
-    QVBoxLayout *layout;
-    QSplitter *masterSplitter;
-    QSplitter *tableSplitter;
+    QVBoxLayout *layout = nullptr;
+    QSplitter *masterSplitter = nullptr;
+    QSplitter *tableSplitter = nullptr;
 
-    HexViewWidget *viewA;
-    HexViewWidget *viewB;
-    QTreeView *analysisTree;
+    HexViewWidget *viewA = nullptr;
+    HexViewWidget *viewB = nullptr;
+    QTreeView *analysisTree = nullptr;
+
+    EtherBench::Models::BufferSlot slotA = EtherBench::Models::BufferSlot::SLOT_COUNT;
+    EtherBench::Models::BufferSlot slotB = EtherBench::Models::BufferSlot::SLOT_COUNT;
+
+    bool compareEnabled = false;
 
     /*
      * Private functions
      */
+
+    /**
+     * @brief Configure and init the hexview editors.
+     *
+     */
     void setHexEditors();
+
+    /**
+     * @brief Set the hex analyser panel.
+     *
+     */
     void setHexAnalyse();
+
+    /**
+     * @brief Configure the shortcuts on that window.
+     *
+     */
+    void setShortcuts();
+
+  public:
+    /**
+     * @brief Find the next difference on the selected buffers.
+     *
+     */
+    void findNextDifference();
 };
 
 } // namespace EtherBench::UI

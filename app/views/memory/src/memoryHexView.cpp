@@ -40,6 +40,10 @@ namespace EtherBench::UI {
 
 HexViewWidget::HexViewWidget(QWidget *parent) : QAbstractScrollArea(parent) {
 
+    // Configure the shortcuts policies
+    viewport()->setFocusPolicy(Qt::StrongFocus);
+    setFocusProxy(viewport());
+
     // Add the scrollbar
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -78,6 +82,11 @@ void HexViewWidget::toggleDisplayMode() {
     viewport()->update();
 }
 
+void HexViewWidget::toggleCompMode() {
+    compareEnabled = !compareEnabled;
+    viewport()->update();
+}
+
 void HexViewWidget::paintEvent(QPaintEvent *event) {
     Q_UNUSED(event);
     QPainter painter(viewport());
@@ -102,6 +111,14 @@ void HexViewWidget::paintEvent(QPaintEvent *event) {
     auto type = pool.getBufferType(mainBuffer);
     auto buffer = pool.getBuffer(mainBuffer, type, EtherBench::Models::BufferIO::READ);
 
+    auto compareType = pool.getBufferType(compareBuffer);
+    auto comp =
+        pool.getBuffer(compareBuffer, compareType, EtherBench::Models::BufferIO::READ);
+
+    // Fetch our comp vector. We'll fill it, or not.
+    std::vector<uint8_t> compData;
+    compData.reserve(16 + 3);
+
     // Perform the lines rendering
     for (int line = firstLine; line < lastLine; ++line) {
         uint64_t offset = line * 16;
@@ -114,10 +131,13 @@ void HexViewWidget::paintEvent(QPaintEvent *event) {
 
         auto lineData = buffer->get(offset, 16 + 3);
 
+        if (compareEnabled)
+            compData = comp->get(offset, 16 + 3);
+
         auto entropyVal = EtherBench::Services::entropy(lineData, 4, 1);
         auto derivVal = EtherBench::Services::derivative(lineData, 4, 1);
 
-        drawHexLine(painter, lineData, entropyVal, derivVal, y, line);
+        drawHexLine(painter, lineData, compData, entropyVal, derivVal, y, line);
     }
 
     // Free the buffer
@@ -148,6 +168,12 @@ void HexViewWidget::mouseMoveEvent(QMouseEvent *event) {
     }
 }
 
+void HexViewWidget::setSelection(uint64_t start, uint64_t stop) {
+    selectionStart = start;
+    selectionEnd = stop;
+    viewport()->update();
+}
+
 void HexViewWidget::mouseReleaseEvent(QMouseEvent *event) {
     Q_UNUSED(event);
     isSelecting = false;
@@ -158,6 +184,7 @@ void HexViewWidget::mouseReleaseEvent(QMouseEvent *event) {
 void HexViewWidget::drawHexLine(
     QPainter &p,
     const std::vector<uint8_t> &data,
+    const std::vector<uint8_t> &comp,
     const std::vector<double> &ent,
     const std::vector<double> &der,
     int y,
@@ -182,13 +209,24 @@ void HexViewWidget::drawHexLine(
         int64_t selMin = std::min(selectionStart, selectionEnd);
         int64_t selMax = std::max(selectionStart, selectionEnd);
 
-        if ((selectionStart != -1) && (currentOffset >= selMin) &&
-            (currentOffset <= selMax)) {
+        bool isSelected = (selectionStart != -1) && (currentOffset >= selMin) &&
+                          (currentOffset <= selMax);
+        bool isDifferent = compareEnabled && (i < comp.size()) && (data[i] != comp[i]);
+
+        // Conditionnal coloration
+        if (isSelected) {
             p.fillRect(cellRect, QColor(0x64, 0xab, 0xf1, 255));
             p.setPen(Qt::black);
 
         } else {
-            // Get the color (default to black)
+
+            if (isDifferent) {
+                // Write in red
+                p.setPen(QColor(255, 0, 0));
+            } else {
+                p.setPen(Qt::white);
+            }
+
             if (displayColor && ((e > 0.05) || (d > 0.05))) {
                 int alpha = static_cast<int>(std::max(e, d) * 127);
 
@@ -198,8 +236,6 @@ void HexViewWidget::drawHexLine(
 
                 p.fillRect(cellRect, QColor(r, g, b, alpha));
             }
-
-            p.setPen(Qt::white);
         }
 
         // Write the text
@@ -237,5 +273,9 @@ int64_t HexViewWidget::offsetAt(const QPoint &pos) {
 
     return (line * 16) + col;
 }
+
+uint64_t HexViewWidget::getStartSelection() { return selectionStart; }
+
+uint64_t HexViewWidget::getStopSelection() { return selectionEnd; }
 
 } // namespace EtherBench::UI

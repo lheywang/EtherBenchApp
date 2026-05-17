@@ -19,6 +19,7 @@
 
 // Qt
 #include <QAbstractScrollArea>
+#include <QKeyEvent>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPoint>
@@ -68,6 +69,33 @@ class HexViewWidget : public QAbstractScrollArea {
      */
     void toggleDisplayMode();
 
+    /**
+     * @brief Toggle the colorations of the compared cells
+     */
+    void toggleCompMode();
+
+    /**
+     * @brief Set the selection range, used to synchronise the correct buffer togethers.
+     *
+     * @param start The start index.
+     * @param stop  The number of selected bytes.
+     */
+    void setSelection(uint64_t offset, uint64_t length);
+
+    /**
+     * @brief Get the Start Selection object
+     *
+     * @return uint64_t
+     */
+    uint64_t getStartSelection();
+
+    /**
+     * @brief Get the Stop Selection object
+     *
+     * @return uint64_t
+     */
+    uint64_t getStopSelection();
+
   signals:
     /**
      * @brief Emitted when we're changing the selection --> Will trigger cast update
@@ -77,7 +105,7 @@ class HexViewWidget : public QAbstractScrollArea {
      */
     void selectionChanged(int offset, int length);
 
-  protected:
+  public:
     /**
      * @brief Callback called when an update is required ! Generally, on the buffer
      * openning, or on a scrollbar events
@@ -124,6 +152,7 @@ class HexViewWidget : public QAbstractScrollArea {
     bool isSelecting = false;
 
     bool displayColor = true;
+    bool compareEnabled = false;
 
     int cw;
     int xHex;
@@ -144,6 +173,7 @@ class HexViewWidget : public QAbstractScrollArea {
     void drawHexLine(
         QPainter &p,
         const std::vector<uint8_t> &data,
+        const std::vector<uint8_t> &comp,
         const std::vector<double> &ent,
         const std::vector<double> &der,
         int y,
@@ -151,7 +181,6 @@ class HexViewWidget : public QAbstractScrollArea {
 
     /**
      * @brief Update the scrollbar, to set where are we, and how many do wee need to show
-     * !
      *
      */
     void updateScrollRange();
