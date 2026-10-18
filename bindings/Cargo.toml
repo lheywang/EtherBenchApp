@@ -1,0 +1,11 @@
+[package]
+name = "bindings"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.30.1", features = ["auto-initialize"] }
+memory = { path = "../memory" }
