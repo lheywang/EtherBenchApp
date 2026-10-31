@@ -6,7 +6,7 @@
 
 use iced::Font;
 use iced::font::{Family, Stretch, Style, Weight};
-use iced::widget::image;
+use iced::widget::svg;
 
 // Loading FiraCode fonts
 pub const FIRA_CODE_BOLD_BYTES: &[u8] =
@@ -34,7 +34,6 @@ pub const CINZEL_SEMIBOLD_BYTES: &[u8] =
 pub enum Icon {
     Debugger,
     Help,
-    Home,
     Io,
     Memory,
     Plot,
@@ -42,46 +41,47 @@ pub enum Icon {
     Routing,
     Sequences,
     Settings,
+    Files,
 }
 
 impl Icon {
-    pub fn handle(&self) -> image::Handle {
+    pub fn handle(&self) -> svg::Handle {
         match self {
-            Icon::Debugger => image::Handle::from_bytes(
-                include_bytes!("../assets/icons/navbar/debugger.png").as_slice(),
+            Icon::Debugger => svg::Handle::from_memory(
+                include_bytes!("../assets/icons/navbar/debugger.svg").as_slice(),
             ),
-            Icon::Help => image::Handle::from_bytes(
-                include_bytes!("../assets/icons/navbar/help.png").as_slice(),
+            Icon::Help => svg::Handle::from_memory(
+                include_bytes!("../assets/icons/navbar/help.svg").as_slice(),
             ),
-            Icon::Home => image::Handle::from_bytes(
-                include_bytes!("../assets/icons/navbar/home.png").as_slice(),
+            Icon::Io => {
+                svg::Handle::from_memory(include_bytes!("../assets/icons/navbar/io.svg").as_slice())
+            }
+            Icon::Memory => svg::Handle::from_memory(
+                include_bytes!("../assets/icons/navbar/memory.svg").as_slice(),
             ),
-            Icon::Io => image::Handle::from_bytes(
-                include_bytes!("../assets/icons/navbar/io.png").as_slice(),
+            Icon::Plot => svg::Handle::from_memory(
+                include_bytes!("../assets/icons/navbar/plots.svg").as_slice(),
             ),
-            Icon::Memory => image::Handle::from_bytes(
-                include_bytes!("../assets/icons/navbar/memory.png").as_slice(),
+            Icon::Programmer => svg::Handle::from_memory(
+                include_bytes!("../assets/icons/navbar/programmer.svg").as_slice(),
             ),
-            Icon::Plot => image::Handle::from_bytes(
-                include_bytes!("../assets/icons/navbar/plot.png").as_slice(),
+            Icon::Routing => svg::Handle::from_memory(
+                include_bytes!("../assets/icons/navbar/router.svg").as_slice(),
             ),
-            Icon::Programmer => image::Handle::from_bytes(
-                include_bytes!("../assets/icons/navbar/programmer.png").as_slice(),
+            Icon::Sequences => svg::Handle::from_memory(
+                include_bytes!("../assets/icons/navbar/sequences.svg").as_slice(),
             ),
-            Icon::Routing => image::Handle::from_bytes(
-                include_bytes!("../assets/icons/navbar/routing.png").as_slice(),
+            Icon::Settings => svg::Handle::from_memory(
+                include_bytes!("../assets/icons/navbar/settings.svg").as_slice(),
             ),
-            Icon::Sequences => image::Handle::from_bytes(
-                include_bytes!("../assets/icons/navbar/sequences.png").as_slice(),
-            ),
-            Icon::Settings => image::Handle::from_bytes(
-                include_bytes!("../assets/icons/navbar/settings.png").as_slice(),
+            Icon::Files => svg::Handle::from_memory(
+                include_bytes!("../assets/icons/navbar/files.svg").as_slice(),
             ),
         }
     }
 
-    pub fn widget(&self) -> image::Image {
-        image::Image::new(self.handle())
+    pub fn widget<'a>(&self) -> svg::Svg<'_> {
+        svg::Svg::new(self.handle())
     }
 }
 
@@ -121,13 +121,12 @@ impl FiraCode {
         weight: Weight::ExtraBold,
         ..Self::REGULAR
     };
-
 }
 
 pub struct Cinzel;
 
 impl Cinzel {
-    const FAMILY: Family =  Family::Name("Cinzel");
+    const FAMILY: Family = Family::Name("Cinzel");
 
     pub const REGULAR: Font = Font {
         family: Self::FAMILY,
