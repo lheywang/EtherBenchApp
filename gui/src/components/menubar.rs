@@ -28,6 +28,16 @@ pub enum MenubarMessage {
     ViewExportTo,
 }
 
+fn menubar_button<'a>(
+    name: impl Into<String>,
+    message: MenubarMessage,
+) -> button::Button<'a, MenubarMessage> {
+    button(text(name.into()).width(Length::Fill))
+        .on_press(message)
+        .width(Length::Fill)
+        .style(button::text)
+}
+
 /// Top bar for the App with a menu on the left, some space and finally the statuses.
 pub fn view<'a>(
     status: &'a str,
@@ -36,51 +46,61 @@ pub fn view<'a>(
     connected_serial: Option<&'a str>,
 ) -> Element<'a, Message> {
     // Logo
-    let logo = texts::icon_text(&Icon::Logo, iced::Length::Fixed(16.0));
+    let logo = texts::icon_text(&Icon::Logo, iced::Length::Fixed(16.0), Color::WHITE);
+
+    const MENU_WIDTH: f32 = 220.0;
 
     // Let's define the menubar items
     let file = Menu::new(menu_items![
-        (button("New").on_press(MenubarMessage::FileCloseScript)),
-        (button("Close").on_press(MenubarMessage::FileCloseScript)),
-        (button("Load").on_press(MenubarMessage::FileLoadSlot)),
-        (button("Save").on_press(MenubarMessage::FileSaveSlot)),
-        (button("Transfer to").on_press(MenubarMessage::FileTransferSlot)),
-        (button("Export serial session").on_press(MenubarMessage::FileExportSession))
+        (menubar_button("New", MenubarMessage::FileOpenScript)),
+        (menubar_button("Close", MenubarMessage::FileCloseScript)),
+        (menubar_button("Load", MenubarMessage::FileLoadSlot)),
+        (menubar_button("Save", MenubarMessage::FileSaveSlot)),
+        (menubar_button("Transfer to", MenubarMessage::FileTransferSlot)),
+        (menubar_button("Export serial session", MenubarMessage::FileExportSession)),
     ])
-    .width(Length::Fill);
+    .width(MENU_WIDTH);
 
     let edit = Menu::new(menu_items![
-        (button("Cut").on_press(MenubarMessage::EditCut)),
-        (button("Copy").on_press(MenubarMessage::EditCopy)),
-        (button("Paste").on_press(MenubarMessage::EditPaste)),
-        (button("Find").on_press(MenubarMessage::EditFind)),
-        (button("Replace").on_press(MenubarMessage::EditReplace)),
+        (menubar_button("Cut", MenubarMessage::EditCut)),
+        (menubar_button("Copy", MenubarMessage::EditCopy)),
+        (menubar_button("Paste", MenubarMessage::EditPaste)),
+        (menubar_button("Find", MenubarMessage::EditFind)),
+        (menubar_button("Replace", MenubarMessage::EditReplace)),
     ])
-    .width(Length::Fill);
+    .width(MENU_WIDTH);
 
     let view = Menu::new(menu_items![
-        (button("Screenshot").on_press(MenubarMessage::ViewScreenshot)),
-        (button("Export to image").on_press(MenubarMessage::ViewExportTo))
+        (menubar_button("Screenshot", MenubarMessage::ViewScreenshot)),
+        (menubar_button("Export to image", MenubarMessage::ViewExportTo)),
     ])
-    .width(Length::Fill);
+    .width(MENU_WIDTH);
 
     // Define the main menubar item
     let bar = MenuBar::new(menu_items![
         (text("File").size(13), file),
         (text("Edit").size(13), edit),
         (text("View").size(13), view),
-    ]);
+    ])
+    .spacing(12)
+    .style(style::menubar_style);
 
     // Define the status size
     let status_size = iced::Length::Fixed(16.0);
 
     // Add the status elements
     let serial_status = match connected_serial {
-        Some(serial) => icon_text_text(&Icon::CircleFull, &format!("Using {serial}"), status_size),
+        Some(serial) => icon_text_text(
+            &Icon::CircleFull,
+            &format!("Using {serial}"),
+            status_size,
+            style::COLOR_ACTIVE,
+        ),
         None => icon_text_text(
             &Icon::CircleFull,
             format!("Serial unconnected"),
             status_size,
+            style::COLOR_INACTIVE,
         ),
     };
 
@@ -89,15 +109,30 @@ pub fn view<'a>(
             &Icon::CircleFull,
             &format!("Connected to {ip}"),
             status_size,
+            style::COLOR_ACTIVE,
         ),
         None => icon_text_text(
             &Icon::CircleFull,
             format!("Network unconnected"),
             status_size,
+            style::COLOR_INACTIVE,
         ),
     };
 
-    let device_status = icon_text_text(&Icon::CircleFull, format!("Status : {status}"), status_size);
+    let device_status = match color {
+        Some(color) => icon_text_text(
+            &Icon::CircleFull,
+            format!("Status : {status}"),
+            status_size,
+            color,
+        ),
+        None => icon_text_text(
+            &Icon::CircleFull,
+            format!("Status is not available"),
+            status_size,
+            style::COLOR_INACTIVE,
+        ),
+    };
 
     // Combine the contents
     let content = row![

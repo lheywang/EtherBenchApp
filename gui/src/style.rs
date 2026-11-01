@@ -1,7 +1,8 @@
 /// Define the central styling control.
 /// This define all the colors on the UI.
 use iced::widget::{button, container};
-use iced::{Border, Color, Theme};
+use iced::{Background, Border, Color, Theme};
+use iced_aw::style::Status;
 
 /// Standard palette for all the elements
 pub const BACKGROUND_MAIN: Color = Color::from_rgb(0.12, 0.12, 0.12);
@@ -13,6 +14,10 @@ pub const TEXT_ALERT: Color = Color::from_rgb(0.9, 0.3, 0.3);
 
 pub const BUTTON_HOVER: Color = Color::from_rgb(0.12, 0.55, 0.95);
 pub const BUTTON_PRESS: Color = Color::from_rgb(0.0, 0.38, 0.70);
+
+// Define some colors
+pub const COLOR_INACTIVE: Color = Color::from_rgb8(181, 13, 32);
+pub const COLOR_ACTIVE: Color = Color::from_rgb8(8, 209, 149);
 
 /// Style for the navbar
 pub fn navbar_style(_theme: &Theme) -> container::Style {
@@ -33,36 +38,34 @@ pub fn statusbar_style(_theme: &Theme) -> container::Style {
         border: Border {
             color: BACKGROUND_BORDER.into(),
             width: 1.0,
-            radius: 0.0.into(),
+            radius: 6.0.into(),
         },
         ..Default::default()
     }
 }
 
-pub fn menubar_style(_theme: &Theme) -> container::Style {
-    container::Style {
-        background: Some(BACKGROUND_PANEL.into()),
-        border: Border {
+pub fn menubar_style(_theme: &Theme, _status: Status) -> iced_aw::menu::Style {
+    iced_aw::menu::Style {
+
+        bar_background: Background::Color(BACKGROUND_PANEL.into()),
+        menu_background: Background::Color(BACKGROUND_PANEL.into()),
+        menu_border: Border {
             color: BACKGROUND_BORDER.into(),
             width: 1.0,
-            radius: 0.0.into(),
+            radius: 6.0.into(),
         },
         ..Default::default()
     }
 }
 
 /// Resolve primary button style, depending on it's current status.
-pub fn primary_button_style(
-    _theme: &Theme, status: button::Status
-) -> button::Style {
-
+pub fn primary_button_style(_theme: &Theme, status: button::Status) -> button::Style {
     match status {
-
         button::Status::Active => button::Style {
             background: Some(ACCENT.into()),
             text_color: Color::WHITE,
             border: Border {
-                radius: 6.0.into(), 
+                radius: 6.0.into(),
                 ..Default::default()
             },
             ..Default::default()
@@ -81,7 +84,7 @@ pub fn primary_button_style(
             background: Some(BUTTON_PRESS.into()),
             text_color: Color::WHITE,
             border: Border {
-                radius: 6.0.into(), 
+                radius: 6.0.into(),
                 ..Default::default()
             },
             ..Default::default()
@@ -90,26 +93,21 @@ pub fn primary_button_style(
             background: Some(Color::WHITE.scale_alpha(0.4).into()),
             text_color: TEXT_MUTED,
             border: Border {
-                radius: 6.0.into(), 
+                radius: 6.0.into(),
                 ..Default::default()
             },
             ..Default::default()
         },
     }
-
 }
 
-pub fn primary_icon_button_style(
-    _theme: &Theme, status: button::Status
-) -> button::Style {
-
+pub fn primary_icon_button_style(_theme: &Theme, status: button::Status) -> button::Style {
     match status {
-
         button::Status::Active => button::Style {
             background: None,
             text_color: Color::WHITE,
             border: Border {
-                radius: 6.0.into(), 
+                radius: 6.0.into(),
                 ..Default::default()
             },
             ..Default::default()
@@ -128,7 +126,7 @@ pub fn primary_icon_button_style(
             background: Some(BUTTON_PRESS.into()),
             text_color: Color::WHITE,
             border: Border {
-                radius: 6.0.into(), 
+                radius: 6.0.into(),
                 ..Default::default()
             },
             ..Default::default()
@@ -137,11 +135,10 @@ pub fn primary_icon_button_style(
             background: None,
             text_color: TEXT_MUTED,
             border: Border {
-                radius: 6.0.into(), 
+                radius: 6.0.into(),
                 ..Default::default()
             },
             ..Default::default()
         },
     }
-
 }
