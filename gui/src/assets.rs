@@ -32,50 +32,71 @@ pub const CINZEL_SEMIBOLD_BYTES: &[u8] =
 
 /// Define the enum used to access the different icons
 pub enum Icon {
-    Debugger,
-    Help,
-    Io,
-    Memory,
-    Plot,
-    Programmer,
-    Routing,
-    Sequences,
-    Settings,
-    Files,
+    Logo, 
+    PageDebugger,
+    PageHelp,
+    PageIo,
+    PageMemory,
+    PagePlot,
+    PageProgrammer,
+    PageRouting,
+    PageSequences,
+    PageSettings,
+    PageFiles,
+    CircleFull, 
+    CircleEmpty,
+    Player,
 }
 
 impl Icon {
     pub fn handle(&self) -> svg::Handle {
         match self {
-            Icon::Debugger => svg::Handle::from_memory(
+            // Common items
+            Icon::Logo => svg::Handle::from_memory(include_bytes!("../assets/icons/logo/logo.svg").as_slice()),
+
+            // Pages
+            Icon::PageDebugger => svg::Handle::from_memory(
                 include_bytes!("../assets/icons/navbar/debugger.svg").as_slice(),
             ),
-            Icon::Help => svg::Handle::from_memory(
+            Icon::PageHelp => svg::Handle::from_memory(
                 include_bytes!("../assets/icons/navbar/help.svg").as_slice(),
             ),
-            Icon::Io => {
+            Icon::PageIo => {
                 svg::Handle::from_memory(include_bytes!("../assets/icons/navbar/io.svg").as_slice())
             }
-            Icon::Memory => svg::Handle::from_memory(
+            Icon::PageMemory => svg::Handle::from_memory(
                 include_bytes!("../assets/icons/navbar/memory.svg").as_slice(),
             ),
-            Icon::Plot => svg::Handle::from_memory(
+            Icon::PagePlot => svg::Handle::from_memory(
                 include_bytes!("../assets/icons/navbar/plots.svg").as_slice(),
             ),
-            Icon::Programmer => svg::Handle::from_memory(
+            Icon::PageProgrammer => svg::Handle::from_memory(
                 include_bytes!("../assets/icons/navbar/programmer.svg").as_slice(),
             ),
-            Icon::Routing => svg::Handle::from_memory(
+            Icon::PageRouting => svg::Handle::from_memory(
                 include_bytes!("../assets/icons/navbar/router.svg").as_slice(),
             ),
-            Icon::Sequences => svg::Handle::from_memory(
+            Icon::PageSequences => svg::Handle::from_memory(
                 include_bytes!("../assets/icons/navbar/sequences.svg").as_slice(),
             ),
-            Icon::Settings => svg::Handle::from_memory(
+            Icon::PageSettings => svg::Handle::from_memory(
                 include_bytes!("../assets/icons/navbar/settings.svg").as_slice(),
             ),
-            Icon::Files => svg::Handle::from_memory(
+            Icon::PageFiles => svg::Handle::from_memory(
                 include_bytes!("../assets/icons/navbar/files.svg").as_slice(),
+            ),
+
+            // Menubar status
+            Icon::CircleEmpty => svg::Handle::from_memory(
+                include_bytes!("../assets/icons/menubar/empty.svg").as_slice(),
+            ),
+            Icon::CircleFull => svg::Handle::from_memory(
+                include_bytes!("../assets/icons/menubar/full.svg").as_slice(),
+            ),
+
+            // StatusBar elements
+            Icon::Player => svg::Handle::from_memory(
+                include_bytes!("../assets/icons/statusbar/play.svg").as_slice(),
             ),
         }
     }
